@@ -62,6 +62,8 @@ def get_unsynced_pages(token: str, database_id: str) -> list[dict[str, Any]]:
             json=payload,
             timeout=30,
         )
+        if not resp.ok:
+            logger.error("Notion API error %s: %s", resp.status_code, resp.text)
         resp.raise_for_status()
         data = resp.json()
 
