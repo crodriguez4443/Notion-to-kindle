@@ -300,9 +300,7 @@ def _write_epub(title: str, html_body: str, source_url: str, output_path: str) -
         file_name="content.xhtml",
         lang="en",
     )
-    chapter.content = f"""<?xml version='1.0' encoding='utf-8'?>
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
+    chapter.content = f"""<html>
 <head>
   <title>{_escape_html(title)}</title>
   <link rel="stylesheet" type="text/css" href="style.css"/>
@@ -311,7 +309,7 @@ def _write_epub(title: str, html_body: str, source_url: str, output_path: str) -
   <h1>{_escape_html(title)}</h1>
   {html_body}
 </body>
-</html>"""
+</html>""".encode("utf-8")
     chapter.add_item(style)
     book.add_item(chapter)
 
