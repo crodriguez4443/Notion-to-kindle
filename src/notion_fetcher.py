@@ -42,12 +42,12 @@ def get_unsynced_pages(token: str, database_id: str) -> list[dict[str, Any]]:
             "filter": {
                 "and": [
                     {
-                        "property": "Sent to Kindle",
+                        "property": "sent to kindle",
                         "checkbox": {"equals": False},
                     },
                     {
                         "property": "Category",
-                        "select": {"equals": "read later"},
+                        "select": {"equals": "Read Later"},
                     },
                 ]
             },
@@ -95,7 +95,7 @@ def mark_page_sent(token: str, page_id: str) -> None:
     resp = requests.patch(
         f"{_BASE}/pages/{page_id}",
         headers=_headers(token),
-        json={"properties": {"Sent to Kindle": {"checkbox": True}}},
+        json={"properties": {"sent to kindle": {"checkbox": True}}},
         timeout=30,
     )
     resp.raise_for_status()
