@@ -1,0 +1,2 @@
+notion-client>=2.2.1
+ebooklib>=0.18
