@@ -7,18 +7,12 @@ Environment variables required (set in .env locally, or as GitHub Actions secret
   GMAIL_USER           - Gmail address used to send emails
   GMAIL_APP_PASSWORD   - Google App Password (not your login password)
   KINDLE_EMAIL         - Your Kindle email address (name@kindle.com)
-
-Optional:
-  NOTION_CATEGORY_PROPERTY  - Name of the category property (default: "Category")
-  NOTION_CATEGORY_VALUE     - Value to filter by (default: "read later")
 """
 
 import logging
 import os
 import sys
 import tempfile
-
-from notion_client import Client
 
 from epub_builder import build_epub
 from kindle_sender import send_to_kindle
@@ -47,10 +41,8 @@ def main() -> None:
     gmail_app_password = _require_env("GMAIL_APP_PASSWORD")
     kindle_email = _require_env("KINDLE_EMAIL")
 
-    client = Client(auth=notion_token)
-
     logger.info("Querying Notion database %s for unsynced pages…", database_id)
-    pages = get_unsynced_pages(client, database_id)
+    pages = get_unsynced_pages(notion_token, database_id)
 
     if not pages:
         logger.info("No new articles to send. All caught up!")
@@ -68,7 +60,7 @@ def main() -> None:
         logger.info("Processing: %s", title)
 
         try:
-            blocks = get_page_blocks(client, page_id)
+            blocks = get_page_blocks(notion_token, page_id)
 
             with tempfile.NamedTemporaryFile(suffix=".epub", delete=False) as tmp:
                 epub_path = tmp.name
@@ -82,7 +74,7 @@ def main() -> None:
                     gmail_app_password=gmail_app_password,
                     kindle_email=kindle_email,
                 )
-                mark_page_sent(client, page_id)
+                mark_page_sent(notion_token, page_id)
                 logger.info("Done: %s", title)
             finally:
                 if os.path.exists(epub_path):
@@ -100,7 +92,9 @@ def main() -> None:
         )
         sys.exit(1)
 
-    logger.info("Sync complete. %d article(s) sent to Kindle.", len(pages) - len(failed))
+    logger.info(
+        "Sync complete. %d article(s) sent to Kindle.", len(pages) - len(failed)
+    )
 
 
 if __name__ == "__main__":
